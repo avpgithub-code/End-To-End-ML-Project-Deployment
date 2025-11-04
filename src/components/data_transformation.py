@@ -1,7 +1,7 @@
-import sys
+import sys,os
 from dataclasses import dataclass
 
-import numpy as np 
+import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer
@@ -10,13 +10,12 @@ from sklearn.preprocessing import OneHotEncoder,StandardScaler
 
 from src.exception import CustomException
 from src.logger import logging
-import os
 
 from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
-    preprocessor_obj_file_path=os.path.join('artifacts',"proprocessor.pkl")
+    preprocessor_obj_file_path=os.path.join("artifacts","proprocessor.pkl")
 
 class DataTransformation:
     def __init__(self):
@@ -34,7 +33,7 @@ class DataTransformation:
                 "race_ethnicity",
                 "parental_level_of_education",
                 "lunch",
-                "test_preparation_course",
+                "test_preparation_course"
             ]
             num_pipeline= Pipeline(
                 steps=[
@@ -57,6 +56,8 @@ class DataTransformation:
                 ("cat_pipelines",cat_pipeline,categorical_columns)
                 ]
             )
+            preprocess_type=type(preprocessor)
+            logging.info(f"data-transformation.py: Type of Preprocessor is {preprocess_type}")
             return preprocessor
         except Exception as e:
             raise CustomException(e,sys)
@@ -86,13 +87,11 @@ class DataTransformation:
                 input_feature_train_arr, np.array(target_feature_train_df)
             ]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
-
-            logging.info(f"Saved preprocessing object.")
-
             save_object(
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
                 obj=preprocessing_obj
             )
+            logging.info(f"Saved preprocessing object.")
             return (
                 train_arr,
                 test_arr,
